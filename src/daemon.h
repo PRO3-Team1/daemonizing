@@ -9,7 +9,7 @@
 #define DAEMON_H_
 
 void daemon_init(char *process_name);
-void daemon_stop();
+void daemon_stop(unsigned int exit_code);
 
 
 #endif /* DAEMON_H_ */

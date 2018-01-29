@@ -1,6 +1,6 @@
 /*
  ============================================================================
- Name        : daemonizing.c
+ Name        : main.c
  Author      : 
  Version     :
  Copyright   : Your copyright notice
@@ -19,14 +19,13 @@
 
 int main(int argc, char* argv[]) {
 	daemon_init("daemonizing");
-	while (1) {
-		//Dont block context switches, let the process sleep for some time
-		sleep(1);
-		syslog(LOG_INFO,"Logging info....");
 
-		// Implement and call some function that does core work for this daemon.
+	tserver_init("localhost", 3490);
+	tserver_listen();
+	while (1) {
+
 	}
 
-	daemon_stop();
+	daemon_stop(0);
 
 }
