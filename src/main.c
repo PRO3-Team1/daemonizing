@@ -20,8 +20,9 @@
 void sig_handler(int signo) {
 	if (signo == SIGTERM) {
 		syslog(LOG_INFO, "%s", "Received SIGTERM. Aborting.");
+		exit(0);
 	}
-	exit(0);
+
 }
 
 int main(int argc, char* argv[]) {
@@ -65,15 +66,16 @@ int main(int argc, char* argv[]) {
 	close(STDOUT_FILENO);
 	close(STDERR_FILENO);
 
-	syslog(LOG_INFO, "%s", "IN, OUT, and error closed.");
+	syslog(LOG_INFO,"IN, OUT, and error closed.");
 
 	if (signal(SIGTERM, sig_handler) == SIG_ERR) {
-		syslog(LOG_INFO, "%s", "Can't catch SIGTERM");
+		syslog(LOG_ERR,"Can't catch SIGTERM");
 	}
+
 	while (1) {
 		//Dont block context switches, let the process sleep for some time
 		sleep(1);
-		syslog(LOG_INFO, "%s", "Logging info....");
+		syslog(LOG_INFO,"Logging info....");
 
 		// Implement and call some function that does core work for this daemon.
 	}
