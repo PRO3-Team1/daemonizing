@@ -8,7 +8,6 @@
 #ifndef TSERVER_H_
 #define TSERVER_H_
 
-tserver_init(char * interface, int listen_port);
-tserver_process();
+void tserver_init(char * interface, char * listen_port);
 
 #endif /* TSERVER_H_ */
