@@ -1,3 +1,15 @@
+/**
+ ============================================================================
+ Name        : daemon.c
+ Author      : Tobias & Jens
+ Version     : 1.0
+ Copyright   : None
+ Date 		 : 30/1-2018
+ Description : Change the process to a daemon and prepares syslog
+ ============================================================================
+ *
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>

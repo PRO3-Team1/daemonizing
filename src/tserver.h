@@ -1,8 +1,15 @@
 /*
- * tserver.h
+ ============================================================================
+ Name        : tserver.h
+ Author      : BEEJ's guide to network programming, Tobias, Jens
+ Version     : 2.0
+ Copyright   : None
+ Date 		 : 29/5-2017
+ Modified    : 30/1-2018
+ Description : This tserver program will accept multiple incoming connections
+               and they will echo back the string send from the client.
+ ============================================================================
  *
- *  Created on: Jan 29, 2018
- *      Author: jct
  */
 
 #ifndef TSERVER_H_

@@ -1,8 +1,13 @@
-/*
- * daemon.h
+/**
+ ============================================================================
+ Name        : daemon.h
+ Author      : Tobias & Jens
+ Version     : 1.0
+ Copyright   : None
+ Date 		 : 30/1-2018
+ Description : Change the process to a daemon and prepares syslog
+ ============================================================================
  *
- *  Created on: Jan 29, 2018
- *      Author: tobias
  */
 
 #ifndef DAEMON_H_

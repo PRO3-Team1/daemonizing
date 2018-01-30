@@ -1,20 +1,17 @@
 /*
  ============================================================================
- Name        : socketandthread.c
+ Name        : tserver.c
  Author      : BEEJ's guide to network programming, Tobias, Jens
  Version     : 2.0
  Copyright   : None
- Date 		 : 29/5-2017. Modified 30/1-2018
- Description :
- *This socketandthread program will accept multiple incoming connections
- * and they will echo back the string send from the client.
- *
+ Date 		 : 29/5-2017
+ Modified    : 30/1-2018
+ Description : This tserver program will accept multiple incoming connections
+               and they will echo back the string send from the client.
  ============================================================================
  *
  */
 
-//Choose project -> egenskaber -> C/C++ build -> settings GCC C linker ,
-//libraries and add ”pthread”
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -35,16 +32,16 @@
 #define BACKLOG 10
 #define BUFSIZE 1024
 
+
+void * connection_handling(void *);
+void * listen_thread(void *);
+
 enum state {
 	notSet, Set
 };
 
-void * connection_handling(void *);
-
 //Stores the filedescriptors. listen on sock_fd
 int sockfd;
-
-void * listen_thread(void *);
 
 void tserver_init(char * interface, char *port) {
 	//Linked lists. Hints is to store our settings. servinfo is to collect
@@ -52,7 +49,7 @@ void tserver_init(char * interface, char *port) {
 	//p i used to scroll through servinfo.
 	struct addrinfo hints, *servinfo, *p;
 
-	//initialize hints.
+	//Initialize hints.
 	//Some fields we need to set.
 	//All the other fields in the structure pointed to by hints must
 	//contain either 0 or a NULL pointer,  as  appropriate.
@@ -67,7 +64,7 @@ void tserver_init(char * interface, char *port) {
 	hints.ai_family = AF_UNSPEC;
 	//For streaming socket. Write SOCK_DGRAM for datagram.
 	hints.ai_socktype = SOCK_STREAM;
-	// use my IP
+	//Use my IP
 	hints.ai_flags = AI_PASSIVE;
 
 	//Allocates and initialize a linked list (servinfo)
@@ -78,7 +75,6 @@ void tserver_init(char * interface, char *port) {
 	//call to bind or connect
 	//DNS and service name lookup , fills the structs we need.
 	//Returns zero on success.
-
 	int rv;
 	if ((rv = getaddrinfo(interface, port, &hints, &servinfo)) != 0) {
 		//gai_strerror returns error code from getaddrinfo.
@@ -86,7 +82,7 @@ void tserver_init(char * interface, char *port) {
 		exit(1);
 	}
 
-	// loop through all the results and bind to the first we can
+	//Loop through all the results and bind to the first we can
 	for (p = servinfo; p != NULL; p = p->ai_next) {
 		//socket creates an endpoint for communication. Returns descriptor.
 		//-1 on error
@@ -109,13 +105,13 @@ void tserver_init(char * interface, char *port) {
 
 	freeaddrinfo(servinfo);
 
-	//if the linked list has reached the end without binding.
+	//If the linked list has reached the end without binding.
 	if (p == NULL) {
 		syslog(LOG_ERR,"Sockfd Could not associate with port");
 		exit(1);
 	}
 
-	//listen for connections on a socket.
+	//Listen for connections on a socket.
 	//sockfd is marked as passive, one used to accept incoming connection
 	//requests using accept.
 	//listen also sets errno on error.
@@ -139,7 +135,7 @@ void tserver_init(char * interface, char *port) {
 	//void pointer.
 	int rc = pthread_create(&threads, &attr,listen_thread,NULL);
 	if (rc) {
-		syslog(LOG_ERR,"Couldn't create listen thread");
+		syslog(LOG_ERR, "Couldn't create listen thread");
 		exit(-1);
 	}
 
@@ -147,6 +143,7 @@ void tserver_init(char * interface, char *port) {
 }
 
 void * listen_thread(void * p) {
+	//Endless loop that awaits connections
 	while (1) {
 		//storage for the size of the connected address.
 		// connector's address information
@@ -157,11 +154,11 @@ void * listen_thread(void * p) {
 		intptr_t new_fd = accept(sockfd, (struct sockaddr *) &their_addr,
 				&sin_size);
 		if (new_fd == -1) {
-			syslog(LOG_ERR,"Could not accept");
+			syslog(LOG_ERR, "Could not accept");
 			continue;
 		}
 
-		syslog(LOG_INFO,"accepted incomming connection");
+		syslog(LOG_INFO, "Accepted incomming connection");
 
 		pthread_attr_t attr;
 		pthread_attr_init(&attr);
@@ -176,8 +173,7 @@ void * listen_thread(void * p) {
 		int rc = pthread_create(&threads, &attr, connection_handling,
 				(void*) new_fd);
 		if (rc) {
-
-			syslog(LOG_ERR,"Couldn't create thread");
+			syslog(LOG_ERR,"Couldn't create thread: %d" , rc);
 			exit(1);
 		}
 
@@ -201,8 +197,7 @@ void * connection_handling(void * new_fd) {
 	while (!done) {
 		char buf_in[BUFSIZE];
 
-		//no apostrofies around the 0.
-		memset(buf_in, 0, strlen(buf_in));
+		memset(buf_in, 0x00, strlen(buf_in));
 
 		int n = recv(fd, buf_in, sizeof(buf_in), 0);
 
@@ -210,10 +205,6 @@ void * connection_handling(void * new_fd) {
 		//Therefore we need to include n=0.
 		if (n <= 0) {
 			syslog(LOG_ERR,"Could not read from socket");
-
-			//before there was an exit here, but that closed
-			//the server when the client exited, that is not
-			//desired. Now we just close the thread.
 			done = Set;
 			break;
 		}
@@ -229,7 +220,7 @@ void * connection_handling(void * new_fd) {
 		//echo the input string back to the client
 		n = send(fd, buf_in, n, 0);
 		if (n < 0) {
-			syslog(LOG_ERR,"Could not write to socket");
+			syslog(LOG_ERR, "Could not write to socket");
 
 			done = Set;
 			//break out of the loop and test on the main while loop

@@ -1,11 +1,13 @@
-/*
+/**
  ============================================================================
  Name        : main.c
- Author      : 
- Version     :
- Copyright   : Your copyright notice
- Description : Hello World in C, Ansi-style
+ Author      : Tobias & Jens
+ Version     : 1.0
+ Copyright   : None
+ Date 		 : 30/1-2018
+ Description : Starts as a daemon and opens a multithreaded server.
  ============================================================================
+ *
  */
 
 #include <stdio.h>
